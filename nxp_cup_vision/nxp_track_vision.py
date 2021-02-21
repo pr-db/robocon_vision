@@ -58,7 +58,7 @@ class NXPTrackVision(Node):
             "DebugDetectionImage", 10)
         
         self.PixyVectorPub = self.create_publisher(px4_msgs.msg.PixyVector,
-            "PixyVector", 10)
+            "PixyVector_PubSubTopic", 10)
         
     def findLines(self, passedImage):
         
