@@ -10,6 +10,7 @@ from rclpy.qos import qos_profile_sensor_data
 from rclpy.node import Node
 import time
 import sensor_msgs.msg
+import px4_msgs.msg
 from cv_bridge import CvBridge
 import cv2
 if cv2.__version__ < "4.0.0":
@@ -56,8 +57,8 @@ class NXPTrackVision(Node):
         self.debugDetectionImagePub = self.create_publisher(sensor_msgs.msg.Image,
             "DebugDetectionImage", 10)
         
-        #self.PixyVectorPub = rospy.Publisher(
-        #    "PixyVector",nxp_gazebo.msg.PixyVector,queue_size=0)
+        self.PixyVectorPub = self.create_publisher(px4_msgs.msg.PixyVector,
+            "PixyVector", 10)
         
     def findLines(self, passedImage):
         
@@ -231,24 +232,24 @@ class NXPTrackVision(Node):
 
         
         #Pixy message for publication
-        # if len(pixyScaledVectorArray) > 0:
-        #     timeStampMicroSeconds = (time.time()-self.timeStart)*1000000
-        #     PixyVector_msg = nxp_gazebo.msg.PixyVector()
-        #     PixyVector_msg.timestamp = int(timeStampMicroSeconds)
-        #     PixyVector_msg.m0_x0 = pixyScaledVectorArray[0][0]
-        #     PixyVector_msg.m0_y0 = pixyScaledVectorArray[0][1]
-        #     PixyVector_msg.m0_x1 = pixyScaledVectorArray[0][2]
-        #     PixyVector_msg.m0_y1 = pixyScaledVectorArray[0][3]
-        #     PixyVector_msg.m1_x0 = 0
-        #     PixyVector_msg.m1_y0 = 0
-        #     PixyVector_msg.m1_x1 = 0
-        #     PixyVector_msg.m1_y1 = 0
-        #     if len(pixyScaledVectorArray) > 1:
-        #         PixyVector_msg.m1_x0 = pixyScaledVectorArray[1][0]
-        #         PixyVector_msg.m1_y0 = pixyScaledVectorArray[1][1]
-        #         PixyVector_msg.m1_x1 = pixyScaledVectorArray[1][2]
-        #         PixyVector_msg.m1_y1 = pixyScaledVectorArray[1][3]
-        #     self.PixyVectorPub.publish(PixyVector_msg)
+        if len(pixyScaledVectorArray) > 0:
+            timeStampMicroSeconds = (time.time()-self.timeStart)*1000000
+            PixyVector_msg = px4_msgs.msg.PixyVector()
+            PixyVector_msg.timestamp = int(timeStampMicroSeconds)
+            PixyVector_msg.m0_x0 = int(pixyScaledVectorArray[0][0])
+            PixyVector_msg.m0_y0 = int(pixyScaledVectorArray[0][1])
+            PixyVector_msg.m0_x1 = int(pixyScaledVectorArray[0][2])
+            PixyVector_msg.m0_y1 = int(pixyScaledVectorArray[0][3])
+            PixyVector_msg.m1_x0 = int(0)
+            PixyVector_msg.m1_y0 = int(0)
+            PixyVector_msg.m1_x1 = int(0)
+            PixyVector_msg.m1_y1 = int(0)
+            if len(pixyScaledVectorArray) > 1:
+                PixyVector_msg.m1_x0 = int(pixyScaledVectorArray[1][0])
+                PixyVector_msg.m1_y0 = int(pixyScaledVectorArray[1][1])
+                PixyVector_msg.m1_x1 = int(pixyScaledVectorArray[1][2])
+                PixyVector_msg.m1_y1 = int(pixyScaledVectorArray[1][3])
+            self.PixyVectorPub.publish(PixyVector_msg)
 
         return(returnedImageDebug)
       
