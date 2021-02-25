@@ -374,6 +374,18 @@ class NXPTrackVision(Node):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.35, (0,0,255), 1, cv2.LINE_AA)
 
         #Pixy message for publication
+        if (len(pixyScaledVectorArray) == 0):
+            PixyVector_msg = px4_msgs.msg.PixyVector()
+            PixyVector_msg.timestamp = int(self.timeStampPX4)
+            PixyVector_msg.m0_x0 = int(0)
+            PixyVector_msg.m0_y0 = int(0)
+            PixyVector_msg.m0_x1 = int(0)
+            PixyVector_msg.m0_y1 = int(0)
+            PixyVector_msg.m1_x0 = int(0)
+            PixyVector_msg.m1_y0 = int(0)
+            PixyVector_msg.m1_x1 = int(0)
+            PixyVector_msg.m1_y1 = int(0)
+            self.PixyVectorPub.publish(PixyVector_msg)
         if (len(pixyScaledVectorArray) > 0):
             PixyVector_msg = px4_msgs.msg.PixyVector()
             PixyVector_msg.timestamp = int(self.timeStampPX4)
