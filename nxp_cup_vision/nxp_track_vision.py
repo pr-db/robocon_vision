@@ -8,6 +8,10 @@ import numpy as np
 import rclpy
 from rclpy.qos import qos_profile_sensor_data
 from rclpy.node import Node
+from rclpy.exceptions import ParameterNotDeclaredException
+from rcl_interfaces.msg import Parameter
+from rcl_interfaces.msg import ParameterType
+from rcl_interfaces.msg import ParameterDescriptor
 import sensor_msgs.msg
 import px4_msgs.msg
 from cv_bridge import CvBridge
@@ -23,20 +27,57 @@ class NXPTrackVision(Node):
 
         super().__init__("nxp_track_vision")
 
+        # Get paramaters or defaults
+        pyramid_down_descriptor = ParameterDescriptor(
+            type=ParameterType.PARAMETER_INTEGER,
+            description='Number of times to pyramid image down.')
+
+        camera_image_topic_descriptor = ParameterDescriptor(
+            type=ParameterType.PARAMETER_STRING,
+            description='Camera image topic.')
+        
+        debug_image_topic_descriptor = ParameterDescriptor(
+            type=ParameterType.PARAMETER_STRING,
+            description='Run in debug mode and publish to debug image topic')
+
+        namespace_topic_descriptor = ParameterDescriptor(
+            type=ParameterType.PARAMETER_STRING,
+            description='Namespaceing if needed.')
+        
+        self.declare_parameter("pyramid_down", 2, 
+            pyramid_down_descriptor)
+        
+        self.declare_parameter("camera_image", "Pixy2CMUcam5_sensor", 
+            camera_image_topic_descriptor)
+        
+        self.declare_parameter("debug_image", "", 
+            debug_image_topic_descriptor)
+
+        self.declare_parameter("namespace", "", 
+            namespace_topic_descriptor)
+
+        self.pyrDown = self.get_parameter("pyramid_down").value
+
+        self.cameraImageTopic = self.get_parameter("camera_image").value
+
+        self.debugImageTopic = self.get_parameter("debug_image").value
+
+        self.namespaceTopic = self.get_parameter("namespace").value
+        
+
         #setup CvBridge
         self.bridge = CvBridge()
-
-
-        #Number of times to pyramid down the image before processing
-        self.pyrDown = 2
         
         #Rectangualr area to remove from image calculation to 
         # eliminate the vehicle. Used as ratio of overall image width and height
         # "width ratio,height ratio"
         self.maskRectRatioWidthHeight = np.array([1.0,0.40])
         
-        #Bool for generating and publishing the debug image
-        self.debug = True
+        #Bool for generating and publishing the debug image evaluation
+        self.debug = False
+        
+        if self.debugImageTopic != "":
+            self.debug = True
 
         self.timeStampPX4 = 0
 
@@ -46,19 +87,20 @@ class NXPTrackVision(Node):
         
         #Subscribers
         self.imageSub = self.create_subscription(sensor_msgs.msg.Image, 
-            "/Pixy2CMUcam5_sensor/image_raw", 
+            '/{:s}/image_raw'.format(self.cameraImageTopic), 
             self.pixyImageCallback, 
             qos_profile_sensor_data)
         
         self.timePX4Sub = self.create_subscription(px4_msgs.msg.Timesync, 
-            "/Timesync_PubSubTopic", self.timeCallback, QoSProfile(depth=10))
+            '{:s}/Timesync_PubSubTopic'.format(self.namespaceTopic), 
+            self.timeCallback, QoSProfile(depth=10))
 
         #Publishers
         self.debugDetectionImagePub = self.create_publisher(sensor_msgs.msg.Image,
-            "DebugDetectionImage", 0)
+            '/{:s}'.format(self.debugImageTopic), 0)
         
         self.PixyVectorPub = self.create_publisher(px4_msgs.msg.PixyVector,
-            "PixyVector_PubSubTopic", 0)
+            '{:s}/PixyVector_PubSubTopic'.format(self.namespaceTopic), 0)
         
         #Only used for debugging line finding issues
         self.lineFindPrintDebug = False
@@ -411,7 +453,7 @@ class NXPTrackVision(Node):
         
         # Scene from subscription callback
         scene = self.bridge.imgmsg_to_cv2(data, "bgr8")
-        
+
         #deep copy and pyramid down image to reduce resolution
         scenePyr = copy.deepcopy(scene)
         if self.pyrDown > 0:
