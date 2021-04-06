@@ -13,7 +13,7 @@ from rcl_interfaces.msg import Parameter
 from rcl_interfaces.msg import ParameterType
 from rcl_interfaces.msg import ParameterDescriptor
 import sensor_msgs.msg
-import nxp_cup_msgs.msg
+import nxp_cup_interfaces.msg
 from cv_bridge import CvBridge
 from rclpy.qos import QoSProfile
 import cv2
@@ -96,7 +96,7 @@ class NXPTrackVision(Node):
         self.debugDetectionImagePub = self.create_publisher(sensor_msgs.msg.Image,
             '/{:s}'.format(self.debugImageTopic), 0)
         
-        self.PixyVectorPub = self.create_publisher(nxp_cup_msgs.msg.PixyVector,
+        self.PixyVectorPub = self.create_publisher(nxp_cup_interfaces.msg.PixyVector,
             '{:s}/PixyVector_PubSubTopic'.format(self.namespaceTopic), 0)
         
         #Only used for debugging line finding issues
@@ -413,7 +413,7 @@ class NXPTrackVision(Node):
 
         #Pixy message for publication
         if (len(pixyScaledVectorArray) == 0):
-            PixyVector_msg = nxp_cup_msgs.msg.PixyVector()
+            PixyVector_msg = nxp_cup_interfaces.msg.PixyVector()
             PixyVector_msg.timestamp = int(self.timeStamp)
             PixyVector_msg.m0_x0 = int(0)
             PixyVector_msg.m0_y0 = int(0)
@@ -425,7 +425,7 @@ class NXPTrackVision(Node):
             PixyVector_msg.m1_y1 = int(0)
             self.PixyVectorPub.publish(PixyVector_msg)
         if (len(pixyScaledVectorArray) > 0):
-            PixyVector_msg = nxp_cup_msgs.msg.PixyVector()
+            PixyVector_msg = nxp_cup_interfaces.msg.PixyVector()
             PixyVector_msg.timestamp = int(self.timeStamp)
             PixyVector_msg.m0_x0 = int(pixyScaledVectorArray[0][self.pX0])
             PixyVector_msg.m0_y0 = int(pixyScaledVectorArray[0][self.pY0])
