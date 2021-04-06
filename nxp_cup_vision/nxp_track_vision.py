@@ -79,8 +79,7 @@ class NXPTrackVision(Node):
         if self.debugImageTopic != "":
             self.debug = True
 
-        self.timeStamp = node.get_clock().now()
-
+        self.timeStamp = self.get_clock().now().nanoseconds
         
         #Pixy image size parameters
         self.pixyImageWidth = 72
@@ -97,7 +96,7 @@ class NXPTrackVision(Node):
             '/{:s}'.format(self.debugImageTopic), 0)
         
         self.PixyVectorPub = self.create_publisher(nxp_cup_interfaces.msg.PixyVector,
-            '{:s}/PixyVector_PubSubTopic'.format(self.namespaceTopic), 0)
+            '{:s}/PixyVector'.format(self.namespaceTopic), 0)
         
         #Only used for debugging line finding issues
         self.lineFindPrintDebug = False
@@ -135,7 +134,7 @@ class NXPTrackVision(Node):
 
     def findLines(self, passedImage):
         
-        self.timeStamp = node.get_clock().now()
+        self.timeStamp = self.get_clock().now().nanoseconds
         
         #Testing
         if self.testAllConfigs:
