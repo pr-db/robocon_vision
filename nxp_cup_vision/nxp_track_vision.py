@@ -13,7 +13,7 @@ from rcl_interfaces.msg import Parameter
 from rcl_interfaces.msg import ParameterType
 from rcl_interfaces.msg import ParameterDescriptor
 import sensor_msgs.msg
-import px4_msgs.msg
+import nxp_cup_msgs.msg
 from cv_bridge import CvBridge
 from rclpy.qos import QoSProfile
 import cv2
@@ -79,8 +79,9 @@ class NXPTrackVision(Node):
         if self.debugImageTopic != "":
             self.debug = True
 
-        self.timeStampPX4 = 0
+        self.timeStamp = node.get_clock().now()
 
+        
         #Pixy image size parameters
         self.pixyImageWidth = 72
         self.pixyImageHeight = 52
@@ -90,16 +91,12 @@ class NXPTrackVision(Node):
             '/{:s}/image_raw'.format(self.cameraImageTopic), 
             self.pixyImageCallback, 
             qos_profile_sensor_data)
-        
-        self.timePX4Sub = self.create_subscription(px4_msgs.msg.Timesync, 
-            '{:s}/Timesync_PubSubTopic'.format(self.namespaceTopic), 
-            self.timeCallback, QoSProfile(depth=10))
 
         #Publishers
         self.debugDetectionImagePub = self.create_publisher(sensor_msgs.msg.Image,
             '/{:s}'.format(self.debugImageTopic), 0)
         
-        self.PixyVectorPub = self.create_publisher(px4_msgs.msg.PixyVector,
+        self.PixyVectorPub = self.create_publisher(nxp_cup_msgs.msg.PixyVector,
             '{:s}/PixyVector_PubSubTopic'.format(self.namespaceTopic), 0)
         
         #Only used for debugging line finding issues
@@ -135,31 +132,30 @@ class NXPTrackVision(Node):
 
         if self.switchVectorPoints:
             (self.pX0, self.pY0, self.pX1, self.pY1) = (2,3,0,1)
-        
-    def timeCallback(self, data):
-        self.timeStampPX4 = data.timestamp
-
 
     def findLines(self, passedImage):
+        
+        self.timeStamp = node.get_clock().now()
+        
         #Testing
         if self.testAllConfigs:
             if self.stage == 0:
                 self.get_logger().info("\nPublishing lines Left to Right, points NOT switched")
                 self.sortRightToLeft=False
                 self.switchVectorPoints=False
-                self.startTime = self.timeStampPX4
+                self.startTime = self.timeStamp
                 self.stage = 1
-            elif (((self.timeStampPX4 - self.startTime) > 30*1e6) and (self.stage == 1)):
+            elif (((self.timeStamp - self.startTime) > 30*1e6) and (self.stage == 1)):
                 self.sortRightToLeft=False
                 self.switchVectorPoints=True
                 self.stage = 2
                 self.get_logger().info("\nPublishing lines Left to Right, points ARE switched")
-            elif (((self.timeStampPX4 - self.startTime) > 40*1e6) and (self.stage == 2)):
+            elif (((self.timeStamp - self.startTime) > 40*1e6) and (self.stage == 2)):
                 self.sortRightToLeft=True
                 self.switchVectorPoints=False
                 self.stage = 3
                 self.get_logger().info("\nPublishing lines Right to Left, points NOT switched")
-            elif (((self.timeStampPX4 - self.startTime) > 50*1e6) and (self.stage == 3)):
+            elif (((self.timeStamp - self.startTime) > 50*1e6) and (self.stage == 3)):
                 self.sortRightToLeft=True
                 self.switchVectorPoints=True
                 self.stage = 4
@@ -417,8 +413,8 @@ class NXPTrackVision(Node):
 
         #Pixy message for publication
         if (len(pixyScaledVectorArray) == 0):
-            PixyVector_msg = px4_msgs.msg.PixyVector()
-            PixyVector_msg.timestamp = int(self.timeStampPX4)
+            PixyVector_msg = nxp_cup_msgs.msg.PixyVector()
+            PixyVector_msg.timestamp = int(self.timeStamp)
             PixyVector_msg.m0_x0 = int(0)
             PixyVector_msg.m0_y0 = int(0)
             PixyVector_msg.m0_x1 = int(0)
@@ -429,8 +425,8 @@ class NXPTrackVision(Node):
             PixyVector_msg.m1_y1 = int(0)
             self.PixyVectorPub.publish(PixyVector_msg)
         if (len(pixyScaledVectorArray) > 0):
-            PixyVector_msg = px4_msgs.msg.PixyVector()
-            PixyVector_msg.timestamp = int(self.timeStampPX4)
+            PixyVector_msg = nxp_cup_msgs.msg.PixyVector()
+            PixyVector_msg.timestamp = int(self.timeStamp)
             PixyVector_msg.m0_x0 = int(pixyScaledVectorArray[0][self.pX0])
             PixyVector_msg.m0_y0 = int(pixyScaledVectorArray[0][self.pY0])
             PixyVector_msg.m0_x1 = int(pixyScaledVectorArray[0][self.pX1])

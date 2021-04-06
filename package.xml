@@ -11,7 +11,7 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>px4_msgs</depend>
+  <depend>nxp_cup_interfaces</depend>
   <depend>cv_bridge</depend>
 
   <test_depend>ament_copyright</test_depend>
