@@ -43,6 +43,10 @@ class NXPTrackVision(Node):
         namespace_topic_descriptor = ParameterDescriptor(
             type=ParameterType.PARAMETER_STRING,
             description='Namespaceing if needed.')
+
+        mask_ratio_array_descriptor = ParameterDescriptor(
+            type=ParameterType.PARAMETER_DOUBLE_ARRAY,
+            description='Array for mask ratio')
         
         self.declare_parameter("pyramid_down", 2, 
             pyramid_down_descriptor)
@@ -56,6 +60,9 @@ class NXPTrackVision(Node):
         self.declare_parameter("namespace", "", 
             namespace_topic_descriptor)
 
+        self.declare_parameter("mask_ratio_array", [1.0, 0.5], 
+            mask_ratio_array_descriptor)
+
         self.pyrDown = self.get_parameter("pyramid_down").value
 
         self.cameraImageTopic = self.get_parameter("camera_image").value
@@ -63,6 +70,8 @@ class NXPTrackVision(Node):
         self.debugImageTopic = self.get_parameter("debug_image").value
 
         self.namespaceTopic = self.get_parameter("namespace").value
+
+        self.mask_ratio_array = self.get_parameter("mask_ratio_array").value
         
 
         #setup CvBridge
@@ -71,7 +80,7 @@ class NXPTrackVision(Node):
         #Rectangualr area to remove from image calculation to 
         # eliminate the vehicle. Used as ratio of overall image width and height
         # "width ratio,height ratio"
-        self.maskRectRatioWidthHeight = np.array([1.0,0.40])
+        self.maskRectRatioWidthHeight = np.array([float(self.mask_ratio_array[0]),float(self.mask_ratio_array[1])])
         
         #Bool for generating and publishing the debug image evaluation
         self.debug = False
