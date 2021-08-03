@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'nxp_cup_vision'
+package_name = 'robocon_vision'
 
 setup(
     name=package_name,
@@ -17,12 +17,12 @@ setup(
     author_email='bperseghetti@rudislabs.com',
     maintainer='Benjamin Perseghetti',
     maintainer_email='bperseghetti@rudislabs.com',
-    description='NXP Cup track vision ROS2',
+    description='robocon track vision ROS2',
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "nxp_track_vision = nxp_cup_vision.nxp_track_vision:main"
+            "robocon_vision = robocon_vision.robocon_vision:main"
         ],
     },
 )

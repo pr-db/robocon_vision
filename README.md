@@ -1,2 +1,2 @@
-# nxp_cup_vision
-ROS2 NXP Cup Vision
+# robocon_vision
+ROS2 robocon Vision
