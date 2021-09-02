@@ -13,7 +13,7 @@ from rcl_interfaces.msg import Parameter
 from rcl_interfaces.msg import ParameterType
 from rcl_interfaces.msg import ParameterDescriptor
 import sensor_msgs.msg
-import robocon_interfaces.msg
+import robo_interfaces.msg
 from cv_bridge import CvBridge
 from rclpy.qos import QoSProfile
 import cv2
@@ -21,11 +21,11 @@ if cv2.__version__ < "4.0.0":
     raise ImportError("Requires opencv >= 4.0, "
                       "but found {:s}".format(cv2.__version__))
 
-class RoboconTrackVision(Node):
+class RoboTrackVision(Node):
 
     def __init__(self):
 
-        super().__init__("robocon_vision")
+        super().__init__("robo_vision")
 
         # Get paramaters or defaults
         pyramid_down_descriptor = ParameterDescriptor(
@@ -104,7 +104,7 @@ class RoboconTrackVision(Node):
         self.debugDetectionImagePub = self.create_publisher(sensor_msgs.msg.Image,
             '/{:s}'.format(self.debugImageTopic), 0)
         
-        self.PixyVectorPub = self.create_publisher(robocon_interfaces.msg.PixyVector,
+        self.PixyVectorPub = self.create_publisher(robo_interfaces.msg.PixyVector,
             '{:s}/PixyVector'.format(self.namespaceTopic), 0)
         
         #Only used for debugging line finding issues
@@ -421,7 +421,7 @@ class RoboconTrackVision(Node):
 
         #Pixy message for publication
         if (len(pixyScaledVectorArray) == 0):
-            PixyVector_msg = robocon_interfaces.msg.PixyVector()
+            PixyVector_msg = robo_interfaces.msg.PixyVector()
             PixyVector_msg.timestamp = int(self.timeStamp)
             PixyVector_msg.m0_x0 = int(0)
             PixyVector_msg.m0_y0 = int(0)
@@ -433,7 +433,7 @@ class RoboconTrackVision(Node):
             PixyVector_msg.m1_y1 = int(0)
             self.PixyVectorPub.publish(PixyVector_msg)
         if (len(pixyScaledVectorArray) > 0):
-            PixyVector_msg = robocon_interfaces.msg.PixyVector()
+            PixyVector_msg = robo_interfaces.msg.PixyVector()
             PixyVector_msg.timestamp = int(self.timeStamp)
             PixyVector_msg.m0_x0 = int(pixyScaledVectorArray[0][self.pX0])
             PixyVector_msg.m0_y0 = int(pixyScaledVectorArray[0][self.pY0])
@@ -476,7 +476,7 @@ class RoboconTrackVision(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = RoboconTrackVision()
+    node = RoboTrackVision()
     rclpy.spin(node)
     rclpy.shutdown()
 

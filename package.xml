@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>robocon_vision</name>
+  <name>robo_vision</name>
   <version>0.0.1</version>
-  <description>robocon track vision ROS2.</description>
+  <description>robo track vision ROS2.</description>
   <maintainer email="hewsnbn@gmail.com">hewhoshallnotbenamed</maintainer>
   <author email="bperseghetti@rudislabs.com">Benjamin Perseghetti</author>
   <license>Apache License 2.0</license>
@@ -11,7 +11,7 @@
   <depend>rclpy</depend>
   <depend>std_msgs</depend>
   <depend>sensor_msgs</depend>
-  <depend>robocon_interfaces</depend>
+  <depend>robo_interfaces</depend>
   <depend>cv_bridge</depend>
 
   <test_depend>ament_copyright</test_depend>

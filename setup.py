@@ -1,6 +1,6 @@
 from setuptools import setup
 
-package_name = 'robocon_vision'
+package_name = 'robo_vision'
 
 setup(
     name=package_name,
@@ -17,12 +17,12 @@ setup(
     author_email='bperseghetti@rudislabs.com',
     maintainer='Benjamin Perseghetti',
     maintainer_email='bperseghetti@rudislabs.com',
-    description='robocon track vision ROS2',
+    description='robo track vision ROS2',
     license='Apache License, Version 2.0',
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "robocon_vision = robocon_vision.robocon_vision:main"
+            "robo_vision = robo_vision.robo_vision:main"
         ],
     },
 )
